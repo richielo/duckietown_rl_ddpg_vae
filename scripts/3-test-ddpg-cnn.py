@@ -7,7 +7,7 @@ from duckietown_rl.wrappers import NormalizeWrapper, ImgWrapper, DtRewardWrapper
 import numpy as np
 
 experiment = 2
-seed = "0"
+seed = "2"
 policy_name = "DDPG"
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -44,7 +44,6 @@ with torch.no_grad():
         rewards = []
         while True:
             action = policy.select_action(np.array(obs))
-            action = np.array([-1,1])
             obs, rew, done, misc = env.step(action)
             rewards.append(rew)
             env.render()
