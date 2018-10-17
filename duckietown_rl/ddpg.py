@@ -113,7 +113,7 @@ class CriticCNN(nn.Module):
         x = self.lr(self.conv4(x))
         x = x.view(x.size(0), -1)  # flatten
         x = self.lr(self.lin1(x))
-        x = self.lr(self.lin2(torch.cat([x, actions],1))) # c
+        x = self.lr(self.lin2(torch.cat([x, actions], 1)))  # c
         x = self.lin3(x)
 
         return x
@@ -198,5 +198,5 @@ class DDPG(object):
         torch.save(self.critic.state_dict(), '%s/%s_critic.pth' % (directory, filename))
 
     def load(self, filename, directory):
-        self.actor.load_state_dict(torch.load('%s/%s_actor.pth' % (directory, filename)))
-        self.critic.load_state_dict(torch.load('%s/%s_critic.pth' % (directory, filename)))
+        self.actor.load_state_dict(torch.load('%s/%s_actor.pth' % (directory, filename), map_location='cpu'))
+        self.critic.load_state_dict(torch.load('%s/%s_critic.pth' % (directory, filename), map_location='cpu'))
