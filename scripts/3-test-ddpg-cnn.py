@@ -7,7 +7,7 @@ from duckietown_rl.wrappers import NormalizeWrapper, ImgWrapper, DtRewardWrapper
 import numpy as np
 
 experiment = 2
-seed = "2"
+seed = 9
 policy_name = "DDPG"
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

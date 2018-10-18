@@ -45,6 +45,7 @@ class ActorCNN(nn.Module):
 
         self.lr = nn.LeakyReLU()
         self.tanh = nn.Tanh()
+        self.sigm = nn.Sigmoid()
 
         self.conv1 = nn.Conv2d(3, 32, 8, stride=2)
         self.conv2 = nn.Conv2d(32, 32, 4, stride=2)
@@ -71,7 +72,16 @@ class ActorCNN(nn.Module):
         x = x.view(x.size(0), -1)  # flatten
         x = self.dropout(x)
         x = self.lr(self.lin1(x))
-        x = self.max_action * self.tanh(self.lin2(x))
+
+        # this is the vanilla implementation
+        # but we're using a slightly different one
+        # x = self.max_action * self.tanh(self.lin2(x))
+
+        # because we don't want our duckie to go backwards
+        x = self.lin2(x)
+        x[:,0] = self.max_action * self.sigm(x[:,0]) # because we don't want the duckie to go backwards
+        x[:,1] = self.tanh(x[:,1])
+
         return x
 
 
