@@ -21,7 +21,7 @@ To train a policy,...
     
 1) Clone this repo
 
-        git clone https://github.com/duckietown/challenge-aido1_LF1-baseline-pytorch.git
+        git clone https://github.com/duckietown/challenge-aido1_LF1-baseline-RL-sim-pytorch.git
 
 2) Change into the directory that you cloned:
     
