@@ -2,11 +2,12 @@ import gym
 from gym import spaces
 import numpy as np
 
+
 class NormalizeWrapper(gym.ObservationWrapper):
     def __init__(self, env=None):
-        super().__init__(env)
-        self.obs_lo = self.observation_space.low[0,0,0]
-        self.obs_hi = self.observation_space.high[0,0,0]
+        super(NormalizeWrapper, self).__init__(env)
+        self.obs_lo = self.observation_space.low[0, 0, 0]
+        self.obs_hi = self.observation_space.high[0, 0, 0]
         obs_shape = self.observation_space.shape
         self.observation_space = spaces.Box(0.0, 1.0, obs_shape, dtype=np.float32)
 
@@ -19,7 +20,7 @@ class NormalizeWrapper(gym.ObservationWrapper):
 
 class ImgWrapper(gym.ObservationWrapper):
     def __init__(self, env=None):
-        super().__init__(env)
+        super(ImgWrapper, self).__init__(env)
         obs_shape = self.observation_space.shape
         self.observation_space = spaces.Box(
             self.observation_space.low[0, 0, 0],
@@ -32,9 +33,8 @@ class ImgWrapper(gym.ObservationWrapper):
 
 
 class DtRewardWrapper(gym.RewardWrapper):
-
     def __init__(self, env):
-        super().__init__(env)
+        super(DtRewardWrapper, self).__init__(env)
 
     def reward(self, reward):
         if reward == -1000:
@@ -46,13 +46,12 @@ class DtRewardWrapper(gym.RewardWrapper):
 
         return reward
 
+
 # this is needed because at max speed the duckie can't turn anymore
 class ActionWrapper(gym.ActionWrapper):
-
     def __init__(self, env):
-        super().__init__(env)
+        super(ActionWrapper, self).__init__(env)
 
     def action(self, action):
-        action_ = [action[0]*0.8,action[1]]
+        action_ = [action[0] * 0.8, action[1]]
         return action_
-

@@ -14,6 +14,12 @@ from duckietown_rl.ddpg import DDPG
 from duckietown_rl.utils import seed, evaluate_policy
 from duckietown_rl.wrappers import NormalizeWrapper
 
+# This file is mostly for educational purposes.
+# I tried a few hyperparameters and a few variations
+# and it didn't work particularly well. Use the CNN one
+# instead.
+
+
 experiment = 1
 policy_name = "DDPG"
 exp = Experiment("[duckietown] - ddpg")
@@ -94,7 +100,7 @@ while total_timesteps < args.max_timesteps:
     if total_timesteps < args.start_timesteps:
         action = env.action_space.sample()
     else:
-        action = policy.select_action(np.array(obs))
+        action = policy.predict(np.array(obs))
         if args.expl_noise != 0:
             action = (action + np.random.normal(
                 0,

@@ -6,8 +6,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from duckietown_rl.config import IMG_DIM
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -17,7 +15,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class ActorDense(nn.Module):
     def __init__(self, state_dim, action_dim, max_action):
-        super().__init__()
+        super(ActorDense, self).__init__()
 
         state_dim = functools.reduce(operator.mul, state_dim, 1)
 
@@ -38,7 +36,7 @@ class ActorDense(nn.Module):
 
 class ActorCNN(nn.Module):
     def __init__(self, action_dim, max_action):
-        super().__init__()
+        super(ActorCNN, self).__init__()
 
         # ONLY TRU IN CASE OF DUCKIETOWN:
         flat_size = 32 * 9 * 14
@@ -79,15 +77,15 @@ class ActorCNN(nn.Module):
 
         # because we don't want our duckie to go backwards
         x = self.lin2(x)
-        x[:,0] = self.max_action * self.sigm(x[:,0]) # because we don't want the duckie to go backwards
-        x[:,1] = self.tanh(x[:,1])
+        x[:, 0] = self.max_action * self.sigm(x[:, 0])  # because we don't want the duckie to go backwards
+        x[:, 1] = self.tanh(x[:, 1])
 
         return x
 
 
 class CriticDense(nn.Module):
     def __init__(self, state_dim, action_dim):
-        super().__init__()
+        super(CriticDense, self).__init__()
 
         state_dim = functools.reduce(operator.mul, state_dim, 1)
 
@@ -104,7 +102,7 @@ class CriticDense(nn.Module):
 
 class CriticCNN(nn.Module):
     def __init__(self, action_dim):
-        super().__init__()
+        super(CriticCNN, self).__init__()
 
         flat_size = 32 * 9 * 14
 
@@ -141,7 +139,10 @@ class CriticCNN(nn.Module):
 
 class DDPG(object):
     def __init__(self, state_dim, action_dim, max_action, net_type):
+        super(DDPG, self).__init__()
         assert net_type in ["cnn", "dense"]
+
+        self.state_dim = state_dim
 
         if net_type == "dense":
             self.flat = True
@@ -164,11 +165,17 @@ class DDPG(object):
         self.critic_target.load_state_dict(self.critic.state_dict())
         self.critic_optimizer = torch.optim.Adam(self.critic.parameters())
 
-    def select_action(self, state):
+    def predict(self, state):
+
+        # just making sure the state has the correct format, otherwise the prediction doesn't work
+        assert state.shape[0] == 3
+        assert state.shape[1] == 120
+        assert state.shape[2] == 160
+
         if self.flat:
             state = torch.FloatTensor(state.reshape(1, -1)).to(device)
         else:
-            state = torch.FloatTensor(state.reshape(1, IMG_DIM[0], IMG_DIM[1], IMG_DIM[2])).to(device)
+            state = torch.FloatTensor(np.expand_dims(state, axis=0)).to(device)
         return self.actor(state).cpu().data.numpy().flatten()
 
     def train(self, replay_buffer, iterations, batch_size=64, discount=0.99, tau=0.001):
@@ -214,9 +221,9 @@ class DDPG(object):
                 target_param.data.copy_(tau * param.data + (1 - tau) * target_param.data)
 
     def save(self, filename, directory):
-        torch.save(self.actor.state_dict(), '%s/%s_actor.pth' % (directory, filename))
-        torch.save(self.critic.state_dict(), '%s/%s_critic.pth' % (directory, filename))
+        torch.save(self.actor.state_dict(), '{}/{}_actor.pth'.format(directory, filename))
+        torch.save(self.critic.state_dict(), '{}/{}_critic.pth'.format(directory, filename))
 
     def load(self, filename, directory):
-        self.actor.load_state_dict(torch.load('%s/%s_actor.pth' % (directory, filename), map_location='cpu'))
-        self.critic.load_state_dict(torch.load('%s/%s_critic.pth' % (directory, filename), map_location='cpu'))
+        self.actor.load_state_dict(torch.load('{}/{}_actor.pth'.format(directory, filename), map_location=device))
+        self.critic.load_state_dict(torch.load('{}/{}_critic.pth'.format(directory, filename), map_location=device))
