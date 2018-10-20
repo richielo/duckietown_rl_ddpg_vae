@@ -5,6 +5,7 @@ setup(name='duckietown_rl',
       install_requires=['gym>=0.5',
                         'gym_duckietown',
                         'gym_duckietown_agent>=2018.08',
+                        'hyperdash', # for logging
                         'sklearn',
                         'torch',
                         'numpy',
