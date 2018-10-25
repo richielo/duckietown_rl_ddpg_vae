@@ -169,8 +169,6 @@ class DDPG(object):
 
         # just making sure the state has the correct format, otherwise the prediction doesn't work
         assert state.shape[0] == 3
-        assert state.shape[1] == 120
-        assert state.shape[2] == 160
 
         if self.flat:
             state = torch.FloatTensor(state.reshape(1, -1)).to(device)
