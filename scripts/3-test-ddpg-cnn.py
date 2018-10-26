@@ -23,6 +23,7 @@ env = gym.make("Duckietown-loop_obstacles-v0")
 
 
 # Wrappers
+env = ResizeWrapper(env)
 env = NormalizeWrapper(env)
 env = ImgWrapper(env) # to make the images from 160x120x3 into 3x160x120
 env = ActionWrapper(env)

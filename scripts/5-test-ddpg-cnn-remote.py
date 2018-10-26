@@ -3,7 +3,8 @@ import gym_duckietown_agent
 import torch
 from duckietown_rl.ddpg import DDPG
 from duckietown_rl.utils import evaluate_policy
-from duckietown_rl.wrappers import NormalizeWrapper, ImgWrapper, DtRewardWrapper, ActionWrapper
+from duckietown_rl.wrappers import NormalizeWrapper, ImgWrapper, \
+    DtRewardWrapper, ActionWrapper, ResizeWrapper
 import numpy as np
 
 
@@ -31,6 +32,7 @@ env = gym.make("Duckietown-Lf-Lfv-Navv-v0")
 
 
 # Wrappers
+env = ResizeWrapper(env)
 env = NormalizeWrapper(env)
 env = ImgWrapper(env) # to make the images from 160x120x3 into 3x160x120
 env = ActionWrapper(env)
