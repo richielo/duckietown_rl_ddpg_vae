@@ -3,7 +3,8 @@ import gym_duckietown
 import torch
 from duckietown_rl.ddpg import DDPG
 from duckietown_rl.utils import evaluate_policy
-from duckietown_rl.wrappers import NormalizeWrapper, ImgWrapper, DtRewardWrapper, ActionWrapper
+from duckietown_rl.wrappers import NormalizeWrapper, ImgWrapper, \
+    DtRewardWrapper, ActionWrapper, ResizeWrapper
 import numpy as np
 
 experiment = 2
