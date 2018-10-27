@@ -95,7 +95,7 @@ This is a simple template for an agent that uses PyTorch/DDPG for inference.
 
 ## How to submit the trained policy
 
-Once you're done training, you need to copy your model and the saved weights of the policy network over to a different repo. Check out [https://github.com/duckietown/challenge-aido1_LF1-template-pytorch](https://github.com/duckietown/challenge-aido1_LF1-template-pytorch).
+Once you're done training, you need to copy your model and the saved weights of the policy network.
 
 Specifically if you use this repo then you need to copy over
 
@@ -103,7 +103,7 @@ Specifically if you use this repo then you need to copy over
 - `scripts/pytorch_models/DDPG_2_XXX_actor.pth` and `..._XXX_critic.pth` and rename to `models/model_actor.pth` and `models/model_critic.pth` respectively, where `XXX` is the seed of your best policy
 - `duckietown_rl/wrappers.py` to just `wrappers.py` and don't rename. :)
 
-And then edit the `solution.py` file over at the other repo and execute `dts challenges submit` to send your solution.
+And then edit the `solution.py` file over to make sure everything is loaded up correctly (i.e all of the imports point to the right place) and execute `dts challenges submit` to send your solution.
 
 ## How to improve your policy
 
