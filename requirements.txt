@@ -1,0 +1,10 @@
+gym==0.10.8
+
+-e git://github.com/duckietown/duckietown-shell.git@v3#egg=duckietown-shell
+-e git://github.com/duckietown/duckietown-challenges.git@v3#egg=duckietown-challenges
+
+
+
+# pin these to aido1_remote3-v3
+-e git://github.com/duckietown/gym-duckietown-agent.git@aido1_remote3-v3#egg=gym-duckietown-agent
+-e git+https://github.com/duckietown/duckietown-slimremote.git@aido1_remote3-v3#egg=duckietown-slimremote
