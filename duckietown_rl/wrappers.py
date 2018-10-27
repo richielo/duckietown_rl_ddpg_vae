@@ -3,6 +3,22 @@ from gym import spaces
 import numpy as np
 
 
+class ResizeWrapper(gym.ObservationWrapper):
+    def __init__(self, env=None, shape=(120, 160, 3)):
+        super(ResizeWrapper, self).__init__(env)
+        self.observation_space.shape = shape
+        self.observation_space = spaces.Box(
+            self.observation_space.low[0, 0, 0],
+            self.observation_space.high[0, 0, 0],
+            shape,
+            dtype=self.observation_space.dtype)
+        self.shape = shape
+
+    def observation(self, observation):
+        from scipy.misc import imresize
+        return imresize(observation, self.shape)
+
+
 class NormalizeWrapper(gym.ObservationWrapper):
     def __init__(self, env=None):
         super(NormalizeWrapper, self).__init__(env)

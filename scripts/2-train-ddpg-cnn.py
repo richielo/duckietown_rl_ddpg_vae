@@ -12,7 +12,8 @@ from duckietown_rl import utils
 from duckietown_rl.args import get_ddpg_args
 from duckietown_rl.ddpg import DDPG
 from duckietown_rl.utils import seed, evaluate_policy
-from duckietown_rl.wrappers import NormalizeWrapper, ImgWrapper, DtRewardWrapper, ActionWrapper
+from duckietown_rl.wrappers import NormalizeWrapper, ImgWrapper, \
+    DtRewardWrapper, ActionWrapper, ResizeWrapper
 
 experiment = 2
 policy_name = "DDPG"
@@ -36,6 +37,7 @@ if args.save_models and not os.path.exists("./pytorch_models"):
 env = gym.make("Duckietown-loop_obstacles-v0")
 
 # Wrappers
+env = ResizeWrapper(env)
 env = NormalizeWrapper(env)
 env = ImgWrapper(env) # to make the images from 160x120x3 into 3x160x120
 env = ActionWrapper(env)
