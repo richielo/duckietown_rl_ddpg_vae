@@ -32,6 +32,9 @@ To train a policy,...
         pip3 install -e . # if you are in a conda env
         # or if you want to install this system-wide
         sudo pip3 install -e . 
+
+        # Install gym-duckietown (Use sudo if system-wide)
+        pip3 install -e git://github.com/duckietown/gym-duckietown.git#egg=gym-duckietown
         
 4) Now change into the scripts directory
 
