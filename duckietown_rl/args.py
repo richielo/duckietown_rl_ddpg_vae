@@ -1,7 +1,7 @@
 import argparse
 
 
-def get_ddpg_args():
+def get_ddpg_args_train():
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", default=0, type=int)  # Sets Gym, PyTorch and Numpy seeds
     parser.add_argument("--start_timesteps", default=1e4, type=int)  # How many time steps purely random policy is run for
@@ -16,4 +16,14 @@ def get_ddpg_args():
     parser.add_argument("--noise_clip", default=0.5, type=float)  # Range to clip target policy noise
     parser.add_argument("--policy_freq", default=2, type=int)  # Frequency of delayed policy updates
     parser.add_argument("--env_timesteps", default=500, type=int)  # Frequency of delayed policy updates
+    parser.add_argument("--replay_buffer_max_size", default=1000, type=int)  # Maximum number of steps to keep in the replay buffer
+
+    return parser.parse_args()
+
+
+def get_ddpg_args_test():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--seed", default=0, type=int)  # Sets Gym, PyTorch and Numpy seeds
+    parser.add_argument("--experiment", default=2, type=int)
+    
     return parser.parse_args()

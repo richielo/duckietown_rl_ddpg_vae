@@ -16,12 +16,20 @@ def seed(seed):
 
 # Simple replay buffer
 class ReplayBuffer(object):
-    def __init__(self):
+    def __init__(self,max_size):
         self.storage = []
+        self.max_size = max_size
 
     # Expects tuples of (state, next_state, action, reward, done)
     def add(self, state, next_state, action, reward, done):
-        self.storage.append((state, next_state, action, reward, done))
+        print(len(self.storage))
+        if len(self.storage < self.max_size):
+            self.storage.append((state, next_state, action, reward, done))
+        else:
+            # Remove random elements
+            self.storage.pop(random.randrange(len(x)))
+            self.storage.append((state, next_state, action, reward, done))
+
 
     def sample(self, batch_size=100, flat=True):
         ind = np.random.randint(0, len(self.storage), size=batch_size)
