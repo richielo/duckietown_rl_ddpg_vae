@@ -55,7 +55,7 @@ max_action = float(env.action_space.high[0])
 # Initialize policy
 policy = DDPG(state_dim, action_dim, max_action, net_type="cnn")
 
-replay_buffer = utils.ReplayBuffer()
+replay_buffer = utils.ReplayBuffer(args.replay_buffer_max_size)
 
 # Evaluate untrained policy
 evaluations= [evaluate_policy(env, policy)]
