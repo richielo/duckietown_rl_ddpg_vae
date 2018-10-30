@@ -22,11 +22,10 @@ class ReplayBuffer(object):
 
     # Expects tuples of (state, next_state, action, reward, done)
     def add(self, state, next_state, action, reward, done):
-        #print(len(self.storage))
         if len(self.storage) < self.max_size:
             self.storage.append((state, next_state, action, reward, done))
         else:
-            # Remove random elements
+            # Remove random element in the memory beforea adding a new one
             self.storage.pop(random.randrange(len(self.storage)))
             self.storage.append((state, next_state, action, reward, done))
 
