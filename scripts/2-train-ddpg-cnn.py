@@ -9,7 +9,7 @@ import os
 from hyperdash import Experiment
 
 from duckietown_rl import utils
-from duckietown_rl.args import get_ddpg_args
+from duckietown_rl.args import get_ddpg_args_train
 from duckietown_rl.ddpg import DDPG
 from duckietown_rl.utils import seed, evaluate_policy
 from duckietown_rl.wrappers import NormalizeWrapper, ImgWrapper, \
@@ -21,7 +21,7 @@ exp = Experiment("[duckietown] - ddpg")
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-args = get_ddpg_args()
+args = get_ddpg_args_train()
 
 file_name = "{}_{}_{}".format(
     policy_name,
@@ -55,7 +55,7 @@ max_action = float(env.action_space.high[0])
 # Initialize policy
 policy = DDPG(state_dim, action_dim, max_action, net_type="cnn")
 
-replay_buffer = utils.ReplayBuffer()
+replay_buffer = utils.ReplayBuffer(args.replay_buffer_max_size)
 
 # Evaluate untrained policy
 evaluations= [evaluate_policy(env, policy)]

@@ -3,12 +3,15 @@ import gym_duckietown
 import torch
 from duckietown_rl.ddpg import DDPG
 from duckietown_rl.utils import evaluate_policy
+from duckietown_rl.args import get_ddpg_args_test
 from duckietown_rl.wrappers import NormalizeWrapper, ImgWrapper, \
     DtRewardWrapper, ActionWrapper, ResizeWrapper
 import numpy as np
 
-experiment = 2
-seed = 1
+args = get_ddpg_args_test()
+
+experiment = args.experiment
+seed = args.seed
 policy_name = "DDPG"
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -21,7 +24,6 @@ file_name = "{}_{}_{}".format(
 )
 
 env = gym.make("Duckietown-loop_obstacles-v0")
-
 
 # Wrappers
 env = ResizeWrapper(env)
