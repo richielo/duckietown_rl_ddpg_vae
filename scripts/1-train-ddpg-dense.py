@@ -9,6 +9,7 @@ import os
 from hyperdash import Experiment
 
 from duckietown_rl import utils
+from duckietown_rl.env import launch_env
 from duckietown_rl.args import get_ddpg_args
 from duckietown_rl.ddpg import DDPG
 from duckietown_rl.utils import seed, evaluate_policy
@@ -39,7 +40,8 @@ if not os.path.exists("./results"):
 if args.save_models and not os.path.exists("./pytorch_models"):
     os.makedirs("./pytorch_models")
 
-env = gym.make("Duckietown-loop_obstacles-v0")
+# Launch the env with our helper function
+env = launch_env()
 
 # Wrappers
 env = ResizeWrapper(env)

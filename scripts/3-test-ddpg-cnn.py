@@ -1,6 +1,7 @@
 import gym
 import gym_duckietown
 import torch
+from duckietown_rl.env import launch_env
 from duckietown_rl.ddpg import DDPG
 from duckietown_rl.utils import evaluate_policy
 from duckietown_rl.args import get_ddpg_args_test
@@ -23,7 +24,8 @@ file_name = "{}_{}_{}".format(
     seed
 )
 
-env = gym.make("Duckietown-loop_obstacles-v0")
+# Launch the env with our helper function
+env = launch_env()
 
 # Wrappers
 env = ResizeWrapper(env)
