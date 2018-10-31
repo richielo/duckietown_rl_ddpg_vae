@@ -1,3 +1,5 @@
+import gym
+import gym_duckietown_agent
 import torch 
 from duckietown_rl.env import launch_env
 from duckietown_rl.ddpg import DDPG
@@ -27,6 +29,7 @@ file_name = "{}_{}_{}".format(
     seed
 )
 
+# Launch the env with our helper function
 env = launch_env()
 
 # Wrappers

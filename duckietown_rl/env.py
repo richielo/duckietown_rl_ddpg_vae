@@ -1,7 +1,7 @@
 import gym
 import gym_duckietown
 
-def launch_env(id=None)
+def launch_env(id=None):
     env = None
     if id is None:
         from gym_duckietown.simulator import Simulator
