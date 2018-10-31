@@ -1,6 +1,5 @@
-import gym
-import gym_duckietown_agent
-import torch
+import torch 
+from duckietown_rl.env import launch_env
 from duckietown_rl.ddpg import DDPG
 from duckietown_rl.utils import evaluate_policy
 from duckietown_rl.wrappers import NormalizeWrapper, ImgWrapper, \
@@ -28,8 +27,7 @@ file_name = "{}_{}_{}".format(
     seed
 )
 
-env = gym.make("Duckietown-Lf-Lfv-Navv-v0")
-
+env = launch_env()
 
 # Wrappers
 env = ResizeWrapper(env)
