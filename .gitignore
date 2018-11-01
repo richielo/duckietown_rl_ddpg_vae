@@ -109,4 +109,4 @@ venv.bak/
 __pycache__/
 
 # src
-scr/*
+src/*
