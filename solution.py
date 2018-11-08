@@ -36,7 +36,7 @@ def solve(params, cis):
 
     # you ONLY need this wrapper if you trained your policy on [speed,steering angle]
     # instead [left speed, right speed]
-    env = SteeringToWheelVelWrapper(env)
+    # env = SteeringToWheelVelWrapper(env)
 
     # you have to make sure that you're wrapping at least the actions
     # and observations in the same as during training so that your model
