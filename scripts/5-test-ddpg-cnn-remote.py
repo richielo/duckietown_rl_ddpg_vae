@@ -9,13 +9,6 @@ from duckietown_rl.wrappers import NormalizeWrapper, ImgWrapper, \
 import numpy as np
 
 
-####### ========== IMPORTANT =========
-# This will only run if you also start the container with
-# the simulator and leave it running in the background like so
-#
-# docker run -tid -p 8902:8902 -p 5558:5558 -e DISPLAY=$DISPLAY -e DUCKIETOWN_CHALLENGE=LF --name gym-duckietown-server --rm -v /tmp/.X11-unix:/tmp/.X11-unix duckietown/gym-duckietown-server
-
-
 experiment = 2
 seed = 1
 policy_name = "DDPG"
