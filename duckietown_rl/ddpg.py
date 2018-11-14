@@ -33,7 +33,28 @@ class ActorDense(nn.Module):
         x = self.max_action * self.tanh(self.l3(x))
         return x
 
+class ActorVAE(nn.Module):
+    def __init__(self, vae, action_dim, max_action, freeze_vae = True):
+        super(ActorVAE, self).__init__()
+        
+        self.l1 = nn.Linear(vae.encode_dim, 400)
+        self.l2 = nn.Linear(400, 300)
+        self.l3 = nn.Linear(300, action_dim)
+        self.vae = vae
+        if(freeze_vae):
+            for param in self.vae.parameters():
+                param.requires_grad = False
 
+        self.max_action = max_action
+        self.tanh = nn.Tanh()
+        
+    def forward(self, x):
+        x = self.vae.encode(x)[0]
+        x = F.relu(self.l1(x))
+        x = F.relu(self.l2(x))
+        x = self.max_action * self.tanh(self.l3(x))
+        return x
+    
 class ActorCNN(nn.Module):
     def __init__(self, action_dim, max_action):
         super(ActorCNN, self).__init__()
@@ -99,6 +120,28 @@ class CriticDense(nn.Module):
         x = self.l3(x)
         return x
 
+class CriticVAE(nn.Module):
+    def __init__(self, vae, action_dim, freeze_vae = True):
+        super(CriticVAE, self).__init__()
+
+        self.l1 = nn.Linear(vae.encode_dim, 400)
+        self.l2 = nn.Linear(400 + action_dim, 300)
+        self.l3 = nn.Linear(300, 1)
+        self.vae = vae
+        if(freeze_vae):
+            for param in self.vae.parameters():
+                param.requires_grad = False
+
+    def forward(self, x, u):
+        if(type(u) is np.ndarray):
+            u = torch.from_numpy(u).type(torch.FloatTensor).to(device).unsqueeze(0)
+        if(type(x) is np.ndarray):
+            x = torch.from_numpy(x).type(torch.FloatTensor).to(device)
+        x = self.vae.encode(x)[0]
+        x = F.relu(self.l1(x))
+        x = F.relu(self.l2(torch.cat([x, u], 1)))
+        x = self.l3(x)
+        return x
 
 class CriticCNN(nn.Module):
     def __init__(self, action_dim):
@@ -138,20 +181,30 @@ class CriticCNN(nn.Module):
 
 
 class DDPG(object):
-    def __init__(self, state_dim, action_dim, max_action, net_type):
+    def __init__(self, state_dim, action_dim, max_action, replay_buffer, net_type, epsilon = 0.9, epsilon_decay = 0.01, epsilon_min = 0.2, vae = None, use_pr = True):
         super(DDPG, self).__init__()
-        assert net_type in ["cnn", "dense"]
-
+        assert net_type in ["cnn", "dense", "vae"]
+        
+        self.epsilon = epsilon
+        self.epsilon_decay = epsilon_decay
+        self.epsilon_min = epsilon_min
+        self.use_pr = use_pr
+        self.replay_buffer = replay_buffer
+        
         self.state_dim = state_dim
 
         if net_type == "dense":
             self.flat = True
             self.actor = ActorDense(state_dim, action_dim, max_action).to(device)
             self.actor_target = ActorDense(state_dim, action_dim, max_action).to(device)
-        else:
+        elif net_type == "cnn":
             self.flat = False
             self.actor = ActorCNN(action_dim, max_action).to(device)
             self.actor_target = ActorCNN(action_dim, max_action).to(device)
+        else:
+            self.flat = False
+            self.actor = ActorVAE(vae, action_dim, max_action).to(device)
+            self.actor_target = ActorVAE(vae, action_dim, max_action).to(device)
 
         self.actor_target.load_state_dict(self.actor.state_dict())
         self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), lr=1e-4)
@@ -159,9 +212,14 @@ class DDPG(object):
         if net_type == "dense":
             self.critic = CriticDense(state_dim, action_dim).to(device)
             self.critic_target = CriticDense(state_dim, action_dim).to(device)
-        else:
+        elif net_type == "cnn":
             self.critic = CriticCNN(action_dim).to(device)
             self.critic_target = CriticCNN(action_dim).to(device)
+        else:
+            self.flat = False
+            self.critic = CriticVAE(vae, action_dim).to(device)
+            self.critic_target = CriticVAE(vae, action_dim).to(device)
+            
         self.critic_target.load_state_dict(self.critic.state_dict())
         self.critic_optimizer = torch.optim.Adam(self.critic.parameters())
 
@@ -176,12 +234,13 @@ class DDPG(object):
             state = torch.FloatTensor(np.expand_dims(state, axis=0)).to(device)
         return self.actor(state).cpu().data.numpy().flatten()
 
-    def train(self, replay_buffer, iterations, batch_size=64, discount=0.99, tau=0.001):
+    def train(self, iterations, batch_size=64, discount=0.99, tau=0.001):
 
         for it in range(iterations):
 
             # Sample replay buffer
-            sample = replay_buffer.sample(batch_size, flat=self.flat)
+            sample = self.replay_buffer.sample(batch_size, flat=self.flat)
+            idxs = sample["indexes"]    
             state = torch.FloatTensor(sample["state"]).to(device)
             action = torch.FloatTensor(sample["action"]).to(device)
             next_state = torch.FloatTensor(sample["next_state"]).to(device)
@@ -210,13 +269,27 @@ class DDPG(object):
             self.actor_optimizer.zero_grad()
             actor_loss.backward()
             self.actor_optimizer.step()
-
+            
+            # Update PR weights/priority 
+            if(self.use_pr):
+                errors = torch.abs(target_Q - current_Q).cpu().data.numpy()
+                # update priority
+                for i in range(len(idxs)):
+                    idx = idxs[i]
+                    self.replay_buffer.update(idx, errors[i])
+            
             # Update the frozen target models
             for param, target_param in zip(self.critic.parameters(), self.critic_target.parameters()):
                 target_param.data.copy_(tau * param.data + (1 - tau) * target_param.data)
 
             for param, target_param in zip(self.actor.parameters(), self.actor_target.parameters()):
                 target_param.data.copy_(tau * param.data + (1 - tau) * target_param.data)
+            #print("Done learning iteration {}".format(it))
+        
+        #TODO: confirm decay is conrrect
+        self.epsilon -= self.epsilon_decay
+        if(self.epsilon < self.epsilon_min):
+            self.epsilon = self.epsilon_min
 
     def save(self, filename, directory):
         torch.save(self.actor.state_dict(), '{}/{}_actor.pth'.format(directory, filename))
